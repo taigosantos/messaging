@@ -30,6 +30,13 @@ namespace consumer
                 cfg.ReceiveEndpoint(host, "checkorderstatus", endpoint =>
                 {
                     endpoint.Consumer<CheckOrderStatusConsumer>();
+                    endpoint.UseCircuitBreaker(cb =>
+                    {
+                        cb.TrackingPeriod = TimeSpan.FromMinutes(1);
+                        cb.TripThreshold = 15;
+                        cb.ActiveThreshold = 10;
+                        cb.ResetInterval = TimeSpan.FromMinutes(5);
+                    });
                 });
             });
         }
