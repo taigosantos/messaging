@@ -24,7 +24,8 @@ namespace ResponseApiClient.Messaging.Users.Consumers
             if (user == null)
                 throw new InvalidOperationException("User not found");
 
-            await context.RespondAsync<IUserDetails>(new {
+            await context.RespondAsync<IUserDetails>(new
+            {
                 Id = user.Id,
                 Nome = user.Nome,
                 Sobrenome = user.Sobrenome,
