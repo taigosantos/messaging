@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ResponseApiClient.Messaging.Users.Consumers;
 
 namespace ResponseApiClient
 {
@@ -29,19 +30,19 @@ namespace ResponseApiClient
             // Register MassTransit
             services.AddMassTransit(x =>
             {
-                x.AddConsumer<OrderConsumer>();
+                x.AddConsumer<GetUserDetailsConsumer>();
 
                 x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
                 {
-                    var host = cfg.Host(new Uri("localhost"), hostConfigurator =>
+                    var host = cfg.Host(new Uri("rabbitmq://fly.rmq.cloudamqp.com/umeawlvd"), hostConfigurator =>
                     {
-                        hostConfigurator.Username("guest");
-                        hostConfigurator.Password("guest");
+                        hostConfigurator.Username("umeawlvd");
+                        hostConfigurator.Password("O_CTKoSkU1FCHhYIydwlEeaO6NPk7ESE");
                     });
 
-                    cfg.ReceiveEndpoint(host, "submit-order", ep =>
+                    cfg.ReceiveEndpoint(host, "getUserDetails", ep =>
                     {
-                        ep.ConfigureConsumer<OrderConsumer>(provider);
+                        ep.ConfigureConsumer<GetUserDetailsConsumer>(provider);
                     });
                 }));
             });
