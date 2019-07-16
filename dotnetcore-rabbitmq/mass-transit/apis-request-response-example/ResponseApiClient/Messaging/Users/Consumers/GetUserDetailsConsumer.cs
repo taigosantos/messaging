@@ -22,7 +22,9 @@ namespace ResponseApiClient.Messaging.Users.Consumers
 
             // TODO evitar exception
             if (user == null)
+            {
                 throw new InvalidOperationException("User not found");
+            }
 
             await context.RespondAsync<IUserDetails>(new
             {

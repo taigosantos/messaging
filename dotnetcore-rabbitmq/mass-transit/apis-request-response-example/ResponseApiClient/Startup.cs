@@ -28,11 +28,11 @@ namespace ResponseApiClient
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             // Register MassTransit
-            services.AddMassTransit(x =>
+            services.AddMassTransit(config =>
             {
-                x.AddConsumer<GetUserDetailsConsumer>();
+                config.AddConsumer<GetUserDetailsConsumer>();
 
-                x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
+                config.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
                 {
                     var host = cfg.Host(new Uri("rabbitmq://fly.rmq.cloudamqp.com/umeawlvd"), hostConfigurator =>
                     {
@@ -40,9 +40,9 @@ namespace ResponseApiClient
                         hostConfigurator.Password("O_CTKoSkU1FCHhYIydwlEeaO6NPk7ESE");
                     });
 
-                    cfg.ReceiveEndpoint(host, "getUserDetails", ep =>
+                    cfg.ReceiveEndpoint(host, "getUserDetails", endpoint =>
                     {
-                        ep.ConfigureConsumer<GetUserDetailsConsumer>(provider);
+                        endpoint.ConfigureConsumer<GetUserDetailsConsumer>(provider);
                     });
                 }));
             });

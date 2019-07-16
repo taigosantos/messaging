@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ResponseApiClient.Messaging.Users.Contracts;
 
 namespace RequestApiClient
 {
@@ -21,13 +23,27 @@ namespace RequestApiClient
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            // Register MassTransit
+            services.AddMassTransit(config =>
+            {
+                config.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
+                {
+                    var host = cfg.Host(new Uri("rabbitmq://fly.rmq.cloudamqp.com/umeawlvd"), hostConfigurator =>
+                    {
+                        hostConfigurator.Username("umeawlvd");
+                        hostConfigurator.Password("O_CTKoSkU1FCHhYIydwlEeaO6NPk7ESE");
+                    });
+
+                }));
+
+                config.AddRequestClient<IGetUserDetails>(new Uri("rabbitmq://fly.rmq.cloudamqp.com/umeawlvd/getUserDetails"));
+            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
